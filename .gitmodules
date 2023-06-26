@@ -4,3 +4,6 @@
 [submodule "squealer-backend"]
 	path = squealer-backend
 	url = git@github.com:bugboy-20/squealer-backend.git
+[submodule "squealer-SMM"]
+	path = squealer-SMM
+	url = git@github.com:bugboy-20/squealer-SMM.git
