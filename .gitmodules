@@ -1,0 +1,3 @@
+[submodule "squealer-app"]
+	path = squealer-app
+	url = https://github.com/jantizio/squealer-app
