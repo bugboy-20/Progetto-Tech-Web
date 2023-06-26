@@ -1,3 +1,6 @@
 [submodule "squealer-app"]
 	path = squealer-app
 	url = https://github.com/jantizio/squealer-app
+[submodule "squealer-backend"]
+	path = squealer-backend
+	url = git@github.com:bugboy-20/squealer-backend.git
