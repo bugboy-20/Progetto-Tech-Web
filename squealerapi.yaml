@@ -1,22 +1,24 @@
 openapi: 3.0.3
 info:
   title: Squealer API
-  description: squealer backend API
+  description: squealer backend API. TODO gestire il capio psw 
   version: '0.1'
 servers:
-  - url: '/api'
-
+  - url: /api
 tags:
   - name: Auth
-    description: 'Authenticate your squealer account'
+    description: Authenticate your squealer account
   - name: User
-    description: 'Handle the user account'
+    description: Handle the user account
+  - name: Errors
+    description: Keep trak when somthing fault
+
 
 paths:
-  /auth/register:
-    post:
+  /users:
+    put:
       tags:
-        - Auth
+        - User
       description: Register a new user
       summary: Register a new user
       requestBody:
@@ -26,83 +28,77 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
       responses:
-        200:
-          description: 'Operation successful'
-        400:
-          description: 'Bad Request'
-        422:
-          description: 'Unprocessable Entity'
-  /auth/login:
-    post:
-      tags:
-        - Auth
-      description: Let the user login into their account
-      summary: Log in existing user
-      responses:
-        200:
+        '200':
           description: Operation successful
-          content:
-            application/json:
-              schema:
-                type: string
-  /auth/changepasswd:
-    patch:
+        '400':
+          description: Bad Request
+        '422':
+          description: Unprocessable Entity
+    delete:
+      tags:
+        - User
+      description: Delete the current user account
+      summary: Delete the current user account
+      responses:
+        '200':
+          description: Operation Successful
+    get:
+      tags:
+      - User
+      summary: List users
+      responses:
+        '200':
+          description: All users list
+  
+  /auth/token:
+    summary: get the token
+    description: get the token
+    get:
+      summary: get the token
+      description: get the token
+      operationId: ''
+      responses:
+        default:
+          description: Default error sample response
       tags:
         - Auth
-      description: Change the user password
-      summary: Change the user password
+  
+
+    
+  /logs:
+    put:
+      tags:
+        - Errors
+      summary: Add an error message to the list
+      description: Add an error message to the list
+      responses:
+        '200':
+          description: Operation Successful
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: string
-              format: password
-              example: 'aVerySecurePasswd10'
-
+              $ref: '#/components/schemas/Error'
+    get:
+      tags:
+        - Errors
+      summary: Show the list of all the errors appened so far
+      description: Show the list of all the errors appened so far
       responses:
-        200:
+        '200':
           description: Operation Successful
-
-  /auth/resetpasswd/{email}:
-    patch:
-      tags:
-        - Auth
-      description: Changes the password of a non logged user
-      summary: Recover lost password
-      parameters:
-        - in: path
-          name: email
-          required: true
-          description: email of the user
-          schema:
-            type: string
-            format: email
-      responses:
-        200:
-          description: 'Operation Successful'
-
-  /auth/delete:
-    delete:
-      tags:
-        - Auth
-      description: Delete the current user account
-      summary: Delete the current user account
-      responses:
-        200:
-          description: 'Operation Successful'
-
 components:
   schemas:
     User:
       type: object
       required:
-        - 'id'
-        - 'username'
-        - 'email'
-        - 'firstname'
-        - 'lastname'
-        - 'password'
+        - id
+        - username
+        - email
+        - firstname
+        - lastname
+        - password
       properties:
         id:
           type: string
@@ -130,3 +126,23 @@ components:
           type: string
           format: uuid
           nullable: true
+    Error:
+      type: object
+      required:
+        - path
+        - method
+        - message
+      properties:
+        path:
+          type: string
+          format: url
+        method:
+          type: string
+          enum:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - PATCH
+        message:
+          type: string
