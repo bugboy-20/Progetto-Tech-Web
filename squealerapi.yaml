@@ -4,7 +4,7 @@ info:
   description: squealer backend API. TODO gestire il capio psw 
   version: '0.1'
 servers:
-  - url: /api
+  - url: http://site222315.tw.cs.unibo.it/api
 tags:
   - name: Auth
     description: Authenticate your squealer account
@@ -15,12 +15,18 @@ tags:
 
 
 paths:
-  /users:
+  /users/{username}:
     put:
       tags:
         - User
       description: Register a new user
       summary: Register a new user
+      parameters:
+        - name: username
+          in: path
+          schema:
+            type: string
+          required: true
       requestBody:
         required: true
         content:
@@ -34,14 +40,25 @@ paths:
           description: Bad Request
         '422':
           description: Unprocessable Entity
+        '409':
+          description: Username already taken
     delete:
       tags:
         - User
       description: Delete the current user account
       summary: Delete the current user account
+      parameters:
+        - name: username
+          in: path
+          schema:
+            type: string
+          required: true
       responses:
         '200':
           description: Operation Successful
+        '404':
+          description: User not found
+  /users/:
     get:
       tags:
       - User
@@ -49,6 +66,9 @@ paths:
       responses:
         '200':
           description: All users list
+  
+  
+  
   
   /auth/token:
     summary: get the token
@@ -65,7 +85,7 @@ paths:
   
 
     
-  /logs:
+  /logs/:
     put:
       tags:
         - Errors
@@ -88,21 +108,32 @@ paths:
       responses:
         '200':
           description: Operation Successful
+          
+          
+          
+          
+          
+          
+          
+          
+  /info:
+    options:
+      summary: Server options
+      responses:
+        '200':
+          description: SOOS
+          
 components:
   schemas:
     User:
       type: object
       required:
-        - id
         - username
         - email
         - firstname
         - lastname
         - password
       properties:
-        id:
-          type: string
-          format: uuid
         username:
           type: string
         email:
@@ -119,13 +150,16 @@ components:
           type: string
           enum:
             - standard
-            - verified
             - professional
             - moderator
         SMM:
           type: string
           format: uuid
           nullable: true
+        verified:
+          type: boolean
+        quote_modifier:
+          type: number
     Error:
       type: object
       required:
@@ -146,3 +180,4 @@ components:
             - PATCH
         message:
           type: string
+
