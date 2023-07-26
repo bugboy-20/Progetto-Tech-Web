@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Squealer API
   description: squealer backend API. TODO gestire il capio psw
-  version: '0.1'
+  version: '0.2'
 servers:
   - url: http://site222315.tw.cs.unibo.it/api
 tags:
@@ -11,7 +11,11 @@ tags:
   - name: User
     description: Handle the user account
   - name: Errors
-    description: Keep trak when somthing fault
+    description: Keep track when something fault
+  - name: Squeals
+    description: Handle squealer's messages
+  - name: Channels
+    description: Handle squealer's receivers
 
 paths:
   /users/{username}:
@@ -69,7 +73,7 @@ paths:
   /token:
     summary: get the token
     description: get the token
-    get:
+    post:
       summary: get the token
       description: get the token
       operationId: ''
@@ -117,6 +121,102 @@ paths:
       responses:
         '200':
           description: SOOS
+
+  /squeals/:
+    get:
+      tags:
+        - Squeals
+      summary: List the squeals
+      description: List all the squeals, or filter them with a query
+      parameters:
+        - name: channels
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          required: false
+        - name: username
+          in: query
+          schema:
+            type: string
+          required: false
+      responses:
+        '200':
+          description: Operation Successful
+    post:
+      tags:
+        - Squeals
+      summary: Add a new squeal
+      description: Add a new squeal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Squeal'
+      responses:
+        '200':
+          description: Operation Successful
+
+  /squeals/{id}:
+    get:
+      tags:
+        - Squeals
+      summary: Get a specific squeal
+      description: Get a specific squeal
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: number
+          required: true
+      responses:
+        '200':
+          description: Operation Successful
+    delete:
+      tags:
+        - Squeals
+      summary: Delete a specific squeal
+      description: Delete a specific squeal
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: number
+          required: true
+      responses:
+        '200':
+          description: Operation Successful
+
+  /channels/:
+    get:
+      tags:
+        - Channels
+      summary: List the channels
+      description: List all the channels, or filter them with a query
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Operation Successful
+    post:
+      tags:
+        - Channels
+      summary: Add a new channel
+      description: Add a new channel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Channel'
+      responses:
+        '200':
+          description: Operation Successful
 
 components:
   schemas:
@@ -175,15 +275,66 @@ components:
             - PATCH
         message:
           type: string
-# GET /api/squeals/
-# 	tutti i messaggi
-# POST /api/squels/
-# 	aggiungo messaggio
-# /api/squeals/?query={} // la query deve essere case sensitive, decidiare più avanti cosa di preciso
-# 	filtro il messaggio da query
-# GET /api/squeals/{id}
-# 	prende un post specifico
 
+    Squeal:
+      type: object
+      required:
+        - receivers
+        - author
+        - body
+        - datetime
+        - positive_reaction
+        - negative_reaction
+        - category
+        - automatic_receiver
+      properties:
+        id:
+          type: number
+        receivers:
+          type: array
+          items:
+            type: string
+        author:
+          type: string
+        body:
+          type: string #| img | video | geolocazione
+        datetime:
+          type: string
+          format: date-time
+        impressions:
+          type: number
+        positive_reaction:
+          type: number
+        negative_reaction:
+          type: number
+        category:
+          type: object
+        automatic_receiver:
+          type: array
+          items:
+            type: string
+
+    Channel:
+      type: object
+      required:
+        - name
+        - description
+        - type
+        - receivers
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum:
+            - public
+            - private
+        receivers:
+          type: array
+          items:
+            type: string
 # Message {
 # id: number
 # receivers: [§leagueofpanni, ..]: string[]
