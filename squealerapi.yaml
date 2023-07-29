@@ -217,6 +217,25 @@ paths:
       responses:
         '200':
           description: Operation Successful
+  /channels/{channelName}:
+    get:
+      tags:
+        - Channels
+      summary: Show channel infos
+      description: TODO
+      parameters:
+        - name: channelName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Operation Successful
 
 components:
   schemas:
@@ -320,7 +339,7 @@ components:
         - name
         - description
         - type
-        - receivers
+        - subscribed
       properties:
         name:
           type: string
@@ -331,7 +350,7 @@ components:
           enum:
             - public
             - private
-        receivers:
+        subscribed:
           type: array
           items:
             type: string
