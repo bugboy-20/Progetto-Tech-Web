@@ -154,7 +154,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Squeal'
+              $ref: '#/components/schemas/SquealIn'
       responses:
         '200':
           description: Operation Successful
@@ -188,6 +188,22 @@ paths:
       responses:
         '200':
           description: Operation Successful
+    patch:
+      tags:
+        - Squeals
+      summary: Update squeal infos
+      description: Update squeal infos [for example] when the squeal is rendered on the client
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: number
+          required: true
+
+              
+      responses:
+        '200':
+          description: All right
 
   /channels/:
     get:
@@ -295,7 +311,33 @@ components:
         message:
           type: string
 
-    Squeal:
+    SquealIn:
+      type: object
+      required:
+        - receivers
+        - author
+        - body
+        - category
+        - automatic_receiver
+      properties:
+        receivers:
+          type: array
+          items:
+            type: string
+        author:
+          type: string
+        body:
+          type: string #| img | video | geolocazione
+        category:
+          type: array
+          items:
+            type: string
+        automatic_receiver:
+          type: array
+          items:
+            type: string
+
+    SquealOut:
       type: object
       required:
         - receivers
@@ -327,7 +369,9 @@ components:
         negative_reaction:
           type: number
         category:
-          type: object
+          type: array
+          items:
+            type: string
         automatic_receiver:
           type: array
           items:
