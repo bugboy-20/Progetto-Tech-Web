@@ -126,24 +126,29 @@ paths:
     get:
       tags:
         - Squeals
-      summary: List the squeals
-      description: List all the squeals, or filter them with a query
+      summary: Get squeals with optional filters
       parameters:
-        - name: channels
-          in: query
-          schema:
-            type: array
-            items:
-              type: string
-          required: false
-        - name: username
+        - name: author
           in: query
           schema:
             type: string
-          required: false
+          description: Filter squeals by author
+        - name: channel
+          in: query
+          schema:
+            type: string
+          description: Filter squeals by channel
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+          description: Page number for pagination (default 0)
       responses:
         '200':
-          description: Operation Successful
+          description: Successful response
+        '400':
+          description: Bad request
     post:
       tags:
         - Squeals
@@ -191,19 +196,34 @@ paths:
     patch:
       tags:
         - Squeals
-      summary: Update squeal infos
-      description: Update squeal infos [for example] when the squeal is rendered on the client
+      summary: Update a squeal
       parameters:
         - name: id
           in: path
-          schema:
-            type: number
           required: true
-
-              
+          schema:
+            type: string
+          description: The ID of the squeal to update
+      requestBody:
+        description: Update operation for the squeal
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                op:
+                  type: string
+                  enum: [viewed, upvote, downvote]
+                  description: The operation to perform on the squeal
       responses:
         '200':
-          description: All right
+          description: Successful response
+        '400':
+          description: Bad request
+        '404':
+          description: Squeal not found
+
 
   /channels/:
     get:
@@ -252,7 +272,34 @@ paths:
       responses:
         '200':
           description: Operation Successful
-
+  /channels/{name}/squeals:
+    get:
+      tags:
+        - Channels
+      summary: Get squeals for a specific channel
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The name of the channel
+        - name: author
+          in: query
+          schema:
+            type: string
+          description: Filter squeals by author
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+          description: Page number for pagination (default 0)
+      responses:
+        '200':
+          description: Successful response
+        '400':
+          description: Bad request
 components:
   schemas:
     User:
@@ -290,6 +337,8 @@ components:
           type: boolean
         quote_modifier:
           type: number
+        quote:
+          $ref: '#/components/schemas/Quota'
     Error:
       type: object
       required:
@@ -398,6 +447,16 @@ components:
           type: array
           items:
             type: string
+    Quota:
+      type: object
+      properties:
+        day:
+          type: integer
+        week:
+          type: integer
+        month:
+          type: integer
+        
 # Message {
 # id: number
 # receivers: [§leagueofpanni, ..]: string[]
