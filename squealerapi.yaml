@@ -35,7 +35,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/UserIn'
       responses:
         '201':
           description: Operation successful
@@ -121,6 +121,35 @@ paths:
       responses:
         '200':
           description: SOOS
+  
+  /api/media:
+    post:
+      summary: Upload a media file and get its URL
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                media:
+                  type: string
+                  format: binary
+              description: The media file to upload
+      responses:
+        '200':
+          description: Successful response with media URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                    description: URL of the uploaded media
+        '400':
+          description: Bad request
 
   /squeals/:
     get:
@@ -300,9 +329,38 @@ paths:
           description: Successful response
         '400':
           description: Bad request
+
 components:
   schemas:
     User:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        firstname:
+          type: string
+        lastname:
+          type: string
+        type:
+          type: string
+          enum:
+            - standard
+            - professional
+            - moderator
+        SMM:
+          type: string
+          format: username
+          nullable: true
+        verified:
+          type: boolean
+        quote_modifier:
+          type: number
+        quote:
+          $ref: '#/components/schemas/Quota'
+    UserIn:
       type: object
       required:
         - username
@@ -333,12 +391,7 @@ components:
           type: string
           format: uuid
           nullable: true
-        verified:
-          type: boolean
-        quote_modifier:
-          type: number
-        quote:
-          $ref: '#/components/schemas/Quota'
+
     Error:
       type: object
       required:
@@ -450,12 +503,19 @@ components:
     Quota:
       type: object
       properties:
-        day:
+        actualD:
           type: integer
-        week:
+        actualW:
           type: integer
-        month:
+        actualM:
           type: integer
+        maxD:
+          type: integer
+        maxW:
+          type: integer
+        maxM:
+          type: integer
+
         
 # Message {
 # id: number
