@@ -434,10 +434,6 @@ components:
           type: array
           items:
             type: string
-        automatic_receiver:
-          type: array
-          items:
-            type: string
 
     SquealOut:
       type: object
@@ -474,10 +470,6 @@ components:
           type: array
           items:
             type: string
-        automatic_receiver:
-          type: array
-          items:
-            type: string
 
     Channel:
       type: object
@@ -500,6 +492,7 @@ components:
           type: array
           items:
             type: string
+    
     Quota:
       type: object
       properties:
