@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Squealer API
-  description: squealer backend API. TODO gestire il capio psw
+  description: squealer backend API. TODO gestire il cambio psw
   version: '0.2'
 servers:
   - url: http://site222315.tw.cs.unibo.it/api
@@ -35,10 +35,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserIn'
+              $ref: '#/components/schemas/UserWrite'
       responses:
         '201':
           description: Operation successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRead'
         '400':
           description: Bad Request
         '422':
@@ -59,6 +63,10 @@ paths:
       responses:
         '200':
           description: Operation Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRead'
         '400':
           description: User not found
   /users/:
@@ -69,15 +77,33 @@ paths:
       responses:
         '200':
           description: All users list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserRead'
 
   /token:
     summary: get the token
     description: get the token
     post:
       summary: get the token
-      description: get the token
+      description: Get the jwt token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/login'
       operationId: ''
       responses:
+        '200':
+          description: Successful response
+          content:
+            plain/text:
+              schema:
+                type: string
         default:
           description: Default error sample response
       tags:
@@ -121,8 +147,8 @@ paths:
       responses:
         '200':
           description: SOOS
-  
-  /api/media:
+
+  /media:
     post:
       summary: Upload a media file and get its URL
       requestBody:
@@ -176,6 +202,12 @@ paths:
       responses:
         '200':
           description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SquealRead'
         '400':
           description: Bad request
     post:
@@ -188,7 +220,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SquealIn'
+              $ref: '#/components/schemas/SquealWrite'
       responses:
         '200':
           description: Operation Successful
@@ -208,6 +240,10 @@ paths:
       responses:
         '200':
           description: Operation Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SquealRead'
     delete:
       tags:
         - Squeals
@@ -253,7 +289,6 @@ paths:
         '404':
           description: Squeal not found
 
-
   /channels/:
     get:
       tags:
@@ -268,6 +303,12 @@ paths:
       responses:
         '200':
           description: Operation Successful
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Channel'
     post:
       tags:
         - Channels
@@ -282,6 +323,10 @@ paths:
       responses:
         '200':
           description: Operation Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channel'
   /channels/{channelName}:
     get:
       tags:
@@ -301,6 +346,10 @@ paths:
       responses:
         '200':
           description: Operation Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channel'
   /channels/{name}/squeals:
     get:
       tags:
@@ -327,16 +376,33 @@ paths:
       responses:
         '200':
           description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SquealRead'
         '400':
           description: Bad request
 
 components:
   schemas:
-    User:
+    login:
       type: object
+      required:
+        - username
+        - password
       properties:
         username:
           type: string
+        password:
+          type: string
+          format: password
+    UserRead:
+      type: object
+      properties:
+        username:
+          $ref: '#/components/schemas/Username'
         email:
           type: string
           format: email
@@ -352,7 +418,7 @@ components:
             - moderator
         SMM:
           type: string
-          format: username
+          pattern: '^@(.+)$'
           nullable: true
         verified:
           type: boolean
@@ -360,7 +426,8 @@ components:
           type: number
         quote:
           $ref: '#/components/schemas/Quota'
-    UserIn:
+
+    UserWrite:
       type: object
       required:
         - username
@@ -389,7 +456,7 @@ components:
             - moderator
         SMM:
           type: string
-          format: uuid
+          pattern: '^@(.+)$'
           nullable: true
 
     Error:
@@ -406,36 +473,59 @@ components:
           type: string
           enum:
             - GET
+            - HEAD
             - POST
             - PUT
             - DELETE
             - PATCH
+            - OPTIONS
         message:
           type: string
 
-    SquealIn:
+    SquealWrite:
       type: object
       required:
         - receivers
         - author
         - body
         - category
-        - automatic_receiver
       properties:
         receivers:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/Receiver'
         author:
-          type: string
+          $ref: '#/components/schemas/Username'
         body:
-          type: string #| img | video | geolocazione
+          oneOf:
+            - type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - text
+                content:
+                  type: string
+              required:
+                - type
+                - content
+            - type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - media
+                content:
+                  type: string
+              required:
+                - type
+                - content
         category:
           type: array
           items:
             type: string
 
-    SquealOut:
+    SquealRead:
       type: object
       required:
         - receivers
@@ -445,27 +535,48 @@ components:
         - positive_reaction
         - negative_reaction
         - category
-        - automatic_receiver
       properties:
-        id:
-          type: number
+        _id:
+          type: string
         receivers:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/Receiver'
         author:
-          type: string
+          $ref: '#/components/schemas/Username'
         body:
-          type: string #| img | video | geolocazione
+          oneOf:
+            - type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - text
+                content:
+                  type: string
+              required:
+                - type
+                - content
+            - type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - media
+                content:
+                  type: string
+              required:
+                - type
+                - content
         datetime:
           type: string
           format: date-time
         impressions:
-          type: number
+          type: integer
         positive_reaction:
-          type: number
+          type: integer
         negative_reaction:
-          type: number
+          type: integer
         category:
           type: array
           items:
@@ -480,7 +591,7 @@ components:
         - subscribed
       properties:
         name:
-          type: string
+          $ref: '#/components/schemas/ChannelName'
         description:
           type: string
         type:
@@ -492,7 +603,7 @@ components:
           type: array
           items:
             type: string
-    
+
     Quota:
       type: object
       properties:
@@ -508,8 +619,16 @@ components:
           type: integer
         maxM:
           type: integer
-
-        
+    Username:
+      type: string
+      pattern: '^@(.+)$'
+    ChannelName:
+      type: string
+      pattern: '^§([a-z]+|[A-Z]+)|#.+$'
+    Receiver:
+      oneOf:
+        - $ref: '#/components/schemas/Username'
+        - $ref: '#/components/schemas/ChannelName'
 # Message {
 # id: number
 # receivers: [§leagueofpanni, ..]: string[]
