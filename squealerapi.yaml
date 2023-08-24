@@ -422,8 +422,6 @@ components:
           nullable: true
         verified:
           type: boolean
-        quote_modifier:
-          type: number
         quote:
           $ref: '#/components/schemas/Quota'
 
