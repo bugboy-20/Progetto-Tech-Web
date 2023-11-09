@@ -7,3 +7,6 @@
 [submodule "squealer-SMM"]
 	path = squealer-SMM
 	url = git@github.com:bugboy-20/squealer-SMM.git
+[submodule "squealer-moderator"]
+	path = squealer-moderator
+	url = git@github.com:jantizio/squealer-moderator.git
